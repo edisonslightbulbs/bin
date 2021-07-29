@@ -40,7 +40,7 @@ compileSketch() {
 
         pdftotext check.pdf check.txt
         echo `tr '\n' ' ' < check.txt` > check.txt
-        rm -rf check.pdf
+        #rm -rf check.pdf
     }
 
 # compile
