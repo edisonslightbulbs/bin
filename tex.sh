@@ -23,6 +23,26 @@ clean() {
     rm -rf ./*.aux ./*.log ./*.bbl ./*.out ./*.toc ./*.gz ./*.lof ./*.lot ./*.cut ./*.blg ./*.nav ./*.snm ./*.bcf ./*.xml ./*.upa ./*.upb ./*.equ ./*.alg ./*.exc ./*.rep
 }
 
+compileSketch() {
+    printf "\n(1/4): -draftmode -halt-on-error -file-line-error\n"
+    pdflatex -draftmode -interaction=nonstopmode "check.tex" | grep 'error\|critical\|Error\|Critical' | grep -v "(/"
+
+    printf "\n(2/4): bibtex\n"
+    if [ -f "check.aux" ]; then bibtex "check.aux"; fi | grep 'warning\|error\|critical\|Warning\|Error\|Critical'
+        bibtex bu
+        bibtex bu1
+
+        printf "\n(3/4): -draftmode -halt-on-error -file-line-error"
+        pdflatex -draftmode -interaction=nonstopmode "check.tex" | grep 'error\|critical\|Error\|Critical' | grep -v "(/"
+
+        printf "\n(4/4): -interaction=nonstopmode\n"
+        pdflatex -interaction=nonstopmode "check.tex" >/dev/null 2>&1
+
+        pdftotext check.pdf check.txt
+        echo `tr --delete '\n' < check.txt` > check.txt
+        rm -rf check.pdf
+    }
+
 # compile
 #   Compiles latex project.
 #
@@ -43,14 +63,15 @@ compile() {
         bibtex bu
         bibtex bu1
 
-    printf "\n(3/4): -draftmode -halt-on-error -file-line-error"
-    pdflatex -draftmode -interaction=nonstopmode "$1" | grep 'error\|critical\|Error\|Critical' | grep -v "(/"
+        printf "\n(3/4): -draftmode -halt-on-error -file-line-error"
+        pdflatex -draftmode -interaction=nonstopmode "$1" | grep 'error\|critical\|Error\|Critical' | grep -v "(/"
 
-    printf "\n(4/4): -interaction=nonstopmode\n"
-    pdflatex -interaction=nonstopmode "$1" >/dev/null 2>&1
+        printf "\n(4/4): -interaction=nonstopmode\n"
+        pdflatex -interaction=nonstopmode "$1" >/dev/null 2>&1
 
-    clean
-}
+        compileSketch
+        clean
+    }
 
 # show
 #   Opens '*.pdf' file.
