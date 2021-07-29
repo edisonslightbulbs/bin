@@ -39,7 +39,7 @@ compileSketch() {
         pdflatex -interaction=nonstopmode "check.tex" >/dev/null 2>&1
 
         pdftotext check.pdf check.txt
-        echo `tr --delete '\n' < check.txt` > check.txt
+        echo `tr '\n' ' ' < check.txt` > check.txt
         rm -rf check.pdf
     }
 
