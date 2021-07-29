@@ -78,11 +78,11 @@ compile() {
 show() {
     if [[ "$OSTYPE" == "linux-gnu" ]]; then
         gio open main.pdf
-        gio open check.pdf
+        #gio open check.pdf
     else
         [[ "$OSTYPE" == "darwin" ]]
         open main.pdf
-        open check.pdf
+        #open check.pdf
     fi
 }
 
