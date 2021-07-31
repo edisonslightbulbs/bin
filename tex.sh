@@ -22,6 +22,7 @@ draft="draft.tex" # name of secondary latex project file
 location=""       # path to main/draft latex project file
 textonly=""       # flag to build draft
 pdf=""            # compiled pdf file
+texformat=""         # compiled pdf file
 
 # -- show compiled pdf
 #    args: $1 main latex project file
@@ -151,6 +152,9 @@ checkargs() {
                 if [ "$i" = "-draft" ]; then
                     textonly="Yes"
                 fi
+                if [ "$i" = "-tex" ]; then
+                    texformat="Yes"
+                fi
             done
         else
             false
@@ -184,9 +188,17 @@ buildDraft() {
 
 toText() {
     pdftotext draft.pdf draft.txt
-    echo `tr '\n' ' ' < draft.txt` >draft.txt
+    echo `tr '\n' ' ' < draft.txt` > draft.txt
 }
 
+toTexFormat() {
+   mv ~/Downloads/draft.edited.docx ./
+   docx2txt.pl draft.edited.docx
+   mv draft.edited.txt draft.txt
+   sed -e 's/\./\.\'$'\n''\%\'$'\n''/g' draft.txt
+   #perl -pe 's/\./\.\n\%\n/g' draft.txt
+   rm -rf draft.edited.docx
+}
 
 # -- autofind main latex project file
 if [ $# -eq 0 ]; then
@@ -196,14 +208,16 @@ if [ $# -eq 0 ]; then
 
 else
     if checkargs "$@"; then
-        printf "\n-- searching for %s\n" "$main"
+        # printf "\n-- searching for %s\n" "$main"
         if [ "$textonly" = "Yes" ]; then
             echo "-- compiling 'textonly' draft"
             main="$draft"
             buildDraft
             toText
-        else
-            buildProject
         fi
+        if [ "$texformat" = "Yes" ]; then
+            toTexFormat
+        fi
+    buildProject
     fi
 fi
