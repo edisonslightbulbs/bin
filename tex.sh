@@ -54,8 +54,8 @@ bibUnits() {
 # -- compile pdf
 #    args: $1 main latex project file
 compile() {
-    file=${1/tex/pdf} # output '*.pdf' file
-    aux=${1/tex/aux}  # output '*.aux' file
+    local file=${1/tex/pdf} # output '*.pdf' file
+    local aux=${1/tex/aux}  # output '*.aux' file
 
     if [ -f "$file" ]; then rm -f "$file"; fi
 
@@ -78,8 +78,8 @@ compile() {
 # -- compile text only pdf
 #    args: $1 main latex project file
 compileTextonly() {
-    file=${1/tex/pdf} # output '*.pdf' file
-    aux=${1/tex/aux}  # output '*.aux' file
+    local file=${1/tex/pdf} # output '*.pdf' file
+    local aux=${1/tex/aux}  # output '*.aux' file
 
     if [ -f "$file" ]; then rm -f "$file"; fi
 
@@ -94,12 +94,9 @@ compileTextonly() {
     pdflatex -draftmode -interaction=nonstopmode "$1" | grep 'error\|critical\|Error\|Critical' | grep -v "(/"
 
     printf "\n(4/4) compilation args: -interaction=nonstopmode\n\n"
-    pdflatex -draftmode -interaction=nonstopmode "$1" >/dev/null 2>&1
+    pdflatex -interaction=nonstopmode "$1" >/dev/null 2>&1
 
     pdf="$file"
-
-    pdftotext draft.pdf draft.txt
-    echo $(tr '\n' ' ' <draft.txt) >draft.txt
 }
 
 # -- find main project file
@@ -163,24 +160,18 @@ checkargs() {
     fi
 }
 
-build() {
+buildProject() {
     if autofind "$main"; then
         echo "-- found $main"
         compile "$location"
         clean
-
-        if [ -f "$pdf" ]; then
-            show "$pdf"
-        else
-            echo "-- couldn't find pdf file"
-        fi
-
+        show "$pdf"
     else
         echo "-- couldn't find $main file"
     fi
 }
 
-buildTextonly() {
+buildDraft() {
     if autofind "$draft"; then
         echo "-- found $draft"
         compileTextonly "$location"
@@ -191,20 +182,28 @@ buildTextonly() {
     fi
 }
 
+toText() {
+    pdftotext draft.pdf draft.txt
+    echo `tr '\n' ' ' < draft.txt` >draft.txt
+}
+
+
 # -- autofind main latex project file
 if [ $# -eq 0 ]; then
     printf "\n-- no arguments were specified\n"
     printf "\n-- searching for %s\n" "$main"
-    build
+    buildProject
 
 else
     if checkargs "$@"; then
         printf "\n-- searching for %s\n" "$main"
-        build
         if [ "$textonly" = "Yes" ]; then
             echo "-- compiling 'textonly' draft"
             main="$draft"
-            buildTextonly
+            buildDraft
+            toText
+        else
+            buildProject
         fi
     fi
 fi
