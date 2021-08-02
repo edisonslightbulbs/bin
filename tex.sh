@@ -41,15 +41,16 @@ show() {
 
 # -- remove pdflatex compilation cache files
 clean() {
-    rm -rf ./*.aux ./*.log ./*.bbl ./*.out ./*.toc ./*.gz ./*.lof ./*.lot ./*.cut ./*.blg ./*.nav ./*.snm ./*.bcf ./*.xml ./*.upa ./*.upb ./*.equ ./*.alg ./*.exc ./*.rep
+    rm -rf ./*.aux ./*.bbl ./*.out ./*.toc ./*.gz ./*.lof ./*.lot ./*.cut ./*.blg ./*.nav ./*.snm ./*.bcf ./*.xml ./*.upa ./*.upb ./*.equ ./*.alg ./*.exc ./*.rep
 }
 
 # -- check for bib units
 bibUnits() {
-    if compgen -G "bu*" >/dev/null; then
-        bibtex bu
-        bibtex bu1
-    fi
+    # if compgen -G "bu*" >/dev/null; then
+    #     bibtex bu >/dev/null 2>&1
+    #     bibtex bu1 >/dev/null 2>&1
+    # fi
+    echo "bib units deactivated"
 }
 
 # -- compile pdf
@@ -60,22 +61,22 @@ compile() {
 
     if [ -f "$file" ]; then rm -f "$file"; fi
 
-    printf "\n(1/4) compilation args: -draftmode -halt-on-error -file-line-error"
-    pdflatex -interaction=nonstopmode "$1" >/dev/null 2>&1
+    printf "\n(1/4) compilation args: -draftmode -interaction=nonstopmode | no output "
+    pdflatex -draftmode -interaction=nonstopmode "$1" >/dev/null 2>&1
 
 
     printf "\n(2/4) compiling bibliographies"
-    if [ -f "$aux" ]; then bibtex "$aux"; fi | grep 'warning\|error\|critical\|Warning\|Error\|Critical'
-    bibUnits
+    if [ -f "$aux" ]; then bibtex "$aux"; fi | grep 'warning\|error\|critical\|Warning\|Error\|Critical' | grep -v '(T'
+        bibUnits
 
-    printf "\n(3/4) compilation args: -draftmode -halt-on-error -file-line-error"
-    pdflatex -draftmode -interaction=nonstopmode "$1" >/dev/null 2>&1
+        printf "\n(3/4) compilation args: -draftmode -interaction=nonstopmode | no output "
+        pdflatex -draftmode -interaction=nonstopmode "$1" >/dev/null 2>&1
 
-    printf "\n(4/4) compilation args: -interaction=nonstopmode\n\n"
-    pdflatex -draftmode -interaction=nonstopmode "$1" | grep 'error\|Latex\|warning\|Warning\|critical\|Error\|Critical' | grep -v "(/" | grep -v 'natbib' | grep -v '\vspace'
+        printf "\n(4/4) compilation args: -file-line-error -interaction=nonstopmode\n\n"
+        pdflatex  -file-line-error -interaction=nonstopmode "$1" | grep 'error\|Latex\|warning\|Warning\|critical\|Error\|Critical' | grep -v "(/" | grep -v 'natbib' | grep -v '\vspace' | grep -v 'A possible image without description' | grep -v 'Some images may lack descriptions' | grep -v 'addresses are mandatory for ACM journals' | grep -v 'rerunfilecheck' | grep -v 'Rerun'
 
-    pdf="$file"
-}
+        pdf="$file"
+    }
 
 # -- find main project file
 #    args: $1 main project file
@@ -169,12 +170,12 @@ toText() {
 }
 
 toTexFormat() {
-   mv ~/Downloads/draft.edited.docx ./
-   docx2txt.pl draft.edited.docx
-   mv draft.edited.txt draft.txt
-   sed -e 's/\./\.\'$'\n''\%\'$'\n''/g' draft.txt
-   #perl -pe 's/\./\.\n\%\n/g' draft.txt
-   rm -rf draft.edited.docx
+    mv ~/Downloads/draft.edited.docx ./
+    docx2txt.pl draft.edited.docx
+    mv draft.edited.txt draft.txt
+    sed -e 's/\./\.\'$'\n''\%\'$'\n''/g' draft.txt
+    #perl -pe 's/\./\.\n\%\n/g' draft.txt
+    rm -rf draft.edited.docx
 }
 
 # -- autofind main latex project file
@@ -195,6 +196,6 @@ else
         if [ "$texformat" = "Yes" ]; then
             toTexFormat
         fi
-    buildProject
+        buildProject
     fi
 fi
