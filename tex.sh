@@ -61,41 +61,18 @@ compile() {
     if [ -f "$file" ]; then rm -f "$file"; fi
 
     printf "\n(1/4) compilation args: -draftmode -halt-on-error -file-line-error"
-    pdflatex -draftmode -interaction=nonstopmode "$1" | grep 'error\|critical\|Error\|Critical' | grep -v "(/"
+    pdflatex -interaction=nonstopmode "$1" >/dev/null 2>&1
+
 
     printf "\n(2/4) compiling bibliographies"
-    if [ -f "$aux" ]; then bibtex "$aux"; fi | grep 'warning\|error\|critical\|Warning\|Error\|Critical' | grep -v "(There was 1 error message)"
+    if [ -f "$aux" ]; then bibtex "$aux"; fi | grep 'warning\|error\|critical\|Warning\|Error\|Critical'
     bibUnits
 
     printf "\n(3/4) compilation args: -draftmode -halt-on-error -file-line-error"
-    pdflatex -draftmode -interaction=nonstopmode "$1" | grep 'error\|critical\|Error\|Critical' | grep -v "(/"
+    pdflatex -draftmode -interaction=nonstopmode "$1" >/dev/null 2>&1
 
     printf "\n(4/4) compilation args: -interaction=nonstopmode\n\n"
-    pdflatex -interaction=nonstopmode "$1" >/dev/null 2>&1
-
-    pdf="$file"
-}
-
-# -- compile text only pdf
-#    args: $1 main latex project file
-compileTextonly() {
-    local file=${1/tex/pdf} # output '*.pdf' file
-    local aux=${1/tex/aux}  # output '*.aux' file
-
-    if [ -f "$file" ]; then rm -f "$file"; fi
-
-    printf "\n(1/4) compilation args: -draftmode -halt-on-error -file-line-error"
-    pdflatex -draftmode -interaction=nonstopmode "$1" | grep 'error\|critical\|Error\|Critical' | grep -v "(/"
-
-    printf "\n(2/4) compiling bibliographies"
-    if [ -f "$aux" ]; then bibtex "$aux"; fi | grep 'warning\|error\|critical\|Warning\|Error\|Critical' | grep -v "(There was 1 error message)"
-    bibUnits
-
-    printf "\n(3/4) compilation args: -draftmode -halt-on-error -file-line-error"
-    pdflatex -draftmode -interaction=nonstopmode "$1" | grep 'error\|critical\|Error\|Critical' | grep -v "(/"
-
-    printf "\n(4/4) compilation args: -interaction=nonstopmode\n\n"
-    pdflatex -interaction=nonstopmode "$1" >/dev/null 2>&1
+    pdflatex -draftmode -interaction=nonstopmode "$1" | grep 'error\|Latex\|warning\|Warning\|critical\|Error\|Critical' | grep -v "(/" | grep -v 'natbib' | grep -v '\vspace'
 
     pdf="$file"
 }
@@ -178,7 +155,7 @@ buildProject() {
 buildDraft() {
     if autofind "$draft"; then
         echo "-- found $draft"
-        compileTextonly "$location"
+        compile "$location"
         clean
         show
     else
