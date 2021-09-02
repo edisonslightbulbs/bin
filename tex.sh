@@ -65,7 +65,7 @@ compile() {
     pdflatex -draftmode -interaction=nonstopmode "$1" >/dev/null 2>&1
 
 
-    printf "\n(2/4) compiling bibliographies"
+    printf "\n(2/4) compiling bibliographies\n"
     if [ -f "$aux" ]; then bibtex "$aux"; fi | grep 'warning\|error\|critical\|Warning\|Error\|Critical' | grep -v '(T'
         bibUnits
 
