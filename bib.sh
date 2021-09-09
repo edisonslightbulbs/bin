@@ -61,8 +61,8 @@ bibupdate() {
             echo "Found latex project $dst directory"
             echo "Copy-updating $src => ./resources"
             cd ./resources || return
-            cleanup
             cp "$src" ./
+            cleanup
             return
         else
             cd "../"
