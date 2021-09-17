@@ -41,7 +41,8 @@ show() {
 
 # -- remove pdflatex compilation cache files
 clean() {
-    rm -rf ./*.log ./*.aux ./*.bbl ./*.out ./*.toc ./*.gz ./*.lof ./*.lot ./*.cut ./*.blg ./*.nav ./*.snm ./*.bcf ./*.xml ./*.upa ./*.upb ./*.equ ./*.alg ./*.exc ./*.rep
+    rm -rf ./*.log ./*.aux ./*.bbl ./*.out ./*.toc ./*.gz ./*.lof ./*.lot ./*.cut ./*.blg ./*.nav ./*.snm ./*.bcf ./*.xml ./*.upa ./*.upb ./*.equ ./*.alg ./*.exc ./*.rep ./*.loe  ./*.loa
+
 }
 
 # -- check for bib units
